@@ -1,15 +1,18 @@
-import { sayHello } from './view'
+import '../assets/styles/shared-style.css'
+
+import { Content } from './content'
 
 class App {
   constructor() {
-    console.log('test')
+    this.contentCtrl = new Content()
   }
 
   init() {
-    const set = new Set([1, 2, 3, 4, 5])
-    sayHello(set)
+    this.contentCtrl.init()
   }
 }
 
-const app = new App()
-app.init()
+window.onload = () => {
+  const app = new App()
+  app.init()
+}
