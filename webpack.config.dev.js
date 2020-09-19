@@ -22,6 +22,11 @@ module.exports = {
           },
         },
       },
+      {
+        test: /\.css$/,
+        include: [path.resolve(__dirname, 'src/assets/styles')],
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   devServer: {
