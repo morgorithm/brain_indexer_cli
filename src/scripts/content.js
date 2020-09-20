@@ -24,7 +24,7 @@ export class Content {
       categories.forEach((category) => {
         checkboxList += /* html */ `
           <li>
-            <input type="checkbox" name="${category.name}" />
+            <input type="checkbox" name="${category.name}" category-id="${category.id}" />
             <span>${category.name}</span>
             <span class="align-center">${category.total}</span>
           </li>
@@ -134,7 +134,7 @@ export class Content {
     this.footerCtrl.showBackButton()
   }
 
-  showTrain() {
+  async showTrain() {
     const checkedCheckBoxes = Array.from(
       this.contentElement.querySelectorAll('input[type=checkbox]')
     ).filter((cb) => cb.name !== 'checkall' && cb.checked)
@@ -143,16 +143,41 @@ export class Content {
       location.hash = ''
       alert('No categories selected')
     } else {
-      const lastestCategories = checkedCheckBoxes.map((cb) => cb.name)
+      const categories = checkedCheckBoxes.map((cb) => {
+        return {
+          id: Number(cb.getAttribute('category-id')),
+          name: cb.name,
+        }
+      })
       localStorage.setItem(
         'latest.categories',
-        JSON.stringify(lastestCategories)
+        JSON.stringify(categories.map((c) => c.name))
       )
 
       this.clearContent()
       this.footerCtrl.showTrainButtons()
 
-      console.log('Call random card by category')
+      const card = await CARD.getRandomCard(categories)
+      const category = categories.find((c) => c.id === card.category)
+
+      const cardInfo = /* html */ `
+        <div id="card-info">
+          <span class="category">${category.name}</span>
+          <span class="card">${card.name}</span>
+        </div>
+
+        <div id="card-description">
+          <textarea id="description" value="${card.description}" readonly></textarea>
+        </div>
+      `
+
+      this.contentElement.innerHTML = cardInfo
+
+      const cardInfoElement = this.contentElement.querySelector('div#card-info')
+      const cardDescElement = this.contentElement.querySelector(
+        'textarea#description'
+      )
+      cardInfoElement.onclick = () => (cardDescElement.value = card.description)
     }
   }
 

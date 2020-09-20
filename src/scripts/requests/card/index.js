@@ -17,4 +17,21 @@ export const CARD = {
       throw e
     }
   },
+
+  getRandomCard: async (categories) => {
+    console.log('Target categories are', categories)
+    console.log('Dev code')
+
+    try {
+      const res = await fetch('app/card/4')
+
+      if (!res.ok) {
+        throw new Error('Faield to get random card')
+      } else {
+        return await res.json()
+      }
+    } catch (e) {
+      throw e
+    }
+  },
 }

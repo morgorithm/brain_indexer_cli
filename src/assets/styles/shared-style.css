@@ -92,3 +92,31 @@ div#content > div#card-management > form > fieldset > label > textarea {
 div#content > div#card-management > form > fieldset > button {
   margin-left: auto;
 }
+div#content > div#card-info {
+  margin: 10px;
+  flex: 1;
+  border: 1px solid;
+  border-radius: 5px;
+  display: flex;
+}
+div#content > div#card-info > span.category {
+  font-style: italic;
+  position: absolute;
+}
+div#content > div#card-info > span.card {
+  font-weight: bolder;
+  margin: auto;
+  font-size: 10vw;
+  text-align: center;
+  flex: 1;
+}
+div#content > div#card-description {
+  display: flex;
+  flex: 1;
+}
+div#content > div#card-description > textarea#description {
+  flex: 1;
+  margin: 5px;
+  resize: none;
+  border: none;
+}
