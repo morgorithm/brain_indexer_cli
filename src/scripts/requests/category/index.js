@@ -1,22 +1,4 @@
-export const Auth = {
-  checkAuth: async () => {
-    try {
-      const res = await fetch('admin/login/', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: 'admin',
-          password: '1',
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      return res
-    } catch (e) {
-      throw e
-    }
-  },
-}
+import { UTIL } from '../../utils'
 
 export const CATEGORY = {
   getCategories: async () => {
@@ -35,7 +17,7 @@ export const CATEGORY = {
         body: JSON.stringify(category),
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFTOKEN': getCSRFToken(),
+          'X-CSRFTOKEN': UTIL.getCSRFToken(),
         },
       })
 
@@ -46,44 +28,4 @@ export const CATEGORY = {
       throw e
     }
   },
-}
-
-export const CARD = {
-  createCard: async (card) => {
-    try {
-      const res = await fetch('app/card/', {
-        method: 'POST',
-        body: JSON.stringify(card),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFTOKEN': getCSRFToken(),
-        },
-      })
-
-      if (!res.ok) {
-        throw new Error('Failed to create card')
-      }
-    } catch (e) {
-      throw e
-    }
-  },
-}
-
-function getCSRFToken() {
-  const name = 'csrftoken'
-  let csrfToken = null
-
-  if (document.cookie) {
-    let cookies = document.cookie.split(';')
-    for (let i = 0; i < cookies.length; i++) {
-      let cookie = cookies[i].trim()
-
-      if (cookie.substring(0, name.length + 1) === name + '=') {
-        csrfToken = decodeURIComponent(cookie.substring(name.length + 1))
-        break
-      }
-    }
-  }
-
-  return csrfToken
 }
