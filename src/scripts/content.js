@@ -1,4 +1,4 @@
-import { Auth, CARD, CATEGORY } from './requests/category'
+import { CARD, CATEGORY } from './requests'
 import { ERRORS, ROUTES } from '../constants'
 
 import { Footer } from './footer'
@@ -12,7 +12,6 @@ export class Content {
   }
 
   async init() {
-    await this.checkAuth()
     this.routeHandler(location.hash)
   }
 
@@ -193,11 +192,6 @@ export class Content {
   clearContent() {
     this.contentElement.innerHTML = ''
     this.footerCtrl.footerElement.innerHTML = ''
-  }
-
-  async checkAuth() {
-    const res = await Auth.checkAuth()
-    console.log(res)
   }
 
   routeHandler(route) {
