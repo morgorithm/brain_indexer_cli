@@ -1,3 +1,5 @@
+import { UTIL } from '../../utils'
+
 export const CARD = {
   createCard: async (card) => {
     try {
@@ -12,6 +14,22 @@ export const CARD = {
 
       if (!res.ok) {
         throw new Error('Failed to create card')
+      }
+    } catch (e) {
+      throw e
+    }
+  },
+
+  getRandomCard: async (categories) => {
+    console.log('Dev code')
+
+    try {
+      const res = await fetch('app/card/4')
+
+      if (!res.ok) {
+        throw new Error('Faield to get random card')
+      } else {
+        return await res.json()
       }
     } catch (e) {
       throw e
