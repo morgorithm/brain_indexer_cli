@@ -77,29 +77,25 @@ export class Content {
 
     this.contentElement.innerHTML = /* html */ `
       <div id="card-management">
-        <form id="category-mgt-form">
+        <form id="category-search-form">
           <fieldset>
             <legend>Category</legend>
-
+            
             <label>
-              <span>Name</span>
-              <input name="name" placeholder="Category name" required />
+              <span>Search</span>
+              <input id="category" type="search" />
             </label>
-
-            <button>Save</button>
           </fieldset>
         </form>
 
+        <form id="category-selector"></form>
+
+        <span id="category-create-msg" style="display: none;"></span>
+        
         <form id="card-mgt-form">
           <fieldset>
             <legend>Card</legend>
-
-            <label>
-              <span>Category</span>
-              <select id="category-selector" name="category">
-              </select>
-            </label>
-
+            
             <label>
               <span>Name</span>
               <input name="name" placeholder="Card name" required />
@@ -116,22 +112,69 @@ export class Content {
       </div>
     `
 
-    const categoryMgtForm = this.contentElement.querySelector(
-      'form#category-mgt-form'
-    )
-    categoryMgtForm.onsubmit = this.saveCategory.bind(this)
-
     const cardMgrForm = this.contentElement.querySelector('form#card-mgt-form')
     cardMgrForm.onsubmit = this.saveCard.bind(this)
+    const searchInput = this.contentElement.querySelector('input#category')
+    searchInput.oninput = (e) => {
+      if (searchInput.value) {
+        const reg = new RegExp(searchInput.value)
+        this.renderCategorySelector(
+          categories.filter((category) => reg.test(category.name)),
+          searchInput.value
+        )
+      } else {
+        this.renderCategorySelector(categories)
+      }
+    }
+    searchInput.onkeypress = (e) => {
+      if (
+        e.key === 'Enter' &&
+        e.currentTarget.value &&
+        this.categoryCreatable
+      ) {
+        this.saveCategory(e.currentTarget.value)
+      }
+    }
 
-    const categorySelector = this.contentElement.querySelector(
-      'select#category-selector'
-    )
-    categories.forEach((category) =>
-      categorySelector.add(new Option(category.name, category.id))
-    )
-
+    this.renderCategorySelector(categories)
     this.footerCtrl.showBackButton()
+  }
+
+  renderCategorySelector(categories, serachKeyword) {
+    const categorySelector = this.contentElement.querySelector(
+      'form#category-selector'
+    )
+    categorySelector.innerHTML = ''
+
+    if (categories?.length) {
+      categorySelector.style.display = 'grid'
+      this.hideCreateCategoryMsg()
+      categories.forEach((c) => {
+        categorySelector.innerHTML += /* html */ `
+          <label>
+            <input type="radio" name="category" value="${c.id}" />
+            <span>${c.name}</span>
+          </label>
+        `
+      })
+    } else {
+      categorySelector.style.display = 'none'
+      this.showCreateCategoryMsg(serachKeyword)
+    }
+  }
+
+  showCreateCategoryMsg(serachKeyword) {
+    const msg = this.contentElement.querySelector('span#category-create-msg')
+    msg.innerHTML = /* html */ `Press 'Enter' to create <span class="keyword">'${serachKeyword}'</span>`
+    msg.style.display = 'inline'
+    this.categoryCreatable = true
+  }
+
+  hideCreateCategoryMsg() {
+    this.contentElement.querySelector(
+      'span#category-create-msg'
+    ).style.display = 'none'
+    this.categoryCreatable = false
   }
 
   async showTrain() {
@@ -181,11 +224,9 @@ export class Content {
     }
   }
 
-  async saveCategory(e) {
+  async saveCategory(name) {
     try {
-      e.preventDefault()
-      const category = UTIL.serializeForm(e.currentTarget)
-      await CATEGORY.createCategory(category)
+      await CATEGORY.createCategory({ name })
       this.showCards()
     } catch (e) {
       alert(e.message)
@@ -195,8 +236,15 @@ export class Content {
   async saveCard(e) {
     try {
       e.preventDefault()
+      const category = UTIL.serializeForm(
+        this.contentElement.querySelector('form#category-selector')
+      )
+      if (!category.category) throw new Error('No category selected')
       const card = UTIL.serializeForm(e.currentTarget)
-      await CARD.createCard(card)
+      await CARD.createCard({
+        ...card,
+        ...category,
+      })
       this.showCards()
     } catch (e) {
       alert(e.message)

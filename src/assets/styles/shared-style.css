@@ -5,6 +5,9 @@ body {
   display: flex;
   flex-direction: column;
 }
+div#header {
+  text-align: center;
+}
 
 div#content {
   display: flex;
@@ -32,7 +35,6 @@ div#card-management {
   flex-direction: column;
   flex: 1;
 }
-
 div#content > div#main > ul#category-list {
   padding: 10px;
   flex: 1;
@@ -55,6 +57,31 @@ span {
 div#content > div#main > ul#category-list > li > span.align-center {
   text-align: center;
 }
+div#content > div#card-management > form#category-search-form > fieldset {
+  margin: 0px;
+  padding-bottom: 0px;
+}
+div#content > div#card-management > form#category-search-form input {
+  margin: 0px;
+}
+div#content > div#card-management > form#category-selector {
+  display: grid;
+  margin: 0px 12px;
+  grid-template-columns: repeat(3, 1fr);
+}
+div#content > div#card-management > form#category-selector > label {
+  display: flex;
+  font-size: smaller;
+}
+div#content > div#card-management > form#category-selector > label > * {
+  margin: auto 2px;
+}
+div#content > div#card-management > span#category-create-msg {
+  margin: 0 auto;
+}
+div#content > div#card-management > span#category-create-msg > span.keyword {
+  color: tomato;
+}
 div#content > div#card-management > form {
   padding: 10px;
 }
@@ -64,18 +91,17 @@ div#content > div#card-management > form > fieldset {
   display: grid;
   grid-template-columns: 1fr;
 }
-div#content > div#card-management > form > fieldset > legend {
+div#content > div#card-management legend {
   font-weight: bold;
   font-style: italic;
 }
-div#content > div#card-management > form > fieldset > legend::after {
+div#content > div#card-management legend::after {
   content: ' ✏️';
 }
 div#content > div#card-management > form > fieldset > label {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 5px;
-  margin-left: 5vw;
 }
 
 div#content > div#card-management > form > fieldset > label > input,

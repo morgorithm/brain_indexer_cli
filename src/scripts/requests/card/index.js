@@ -1,3 +1,5 @@
+import { UTIL } from '../../utils'
+
 export const CARD = {
   createCard: async (card) => {
     try {
@@ -19,7 +21,6 @@ export const CARD = {
   },
 
   getRandomCard: async (categories) => {
-    console.log('Target categories are', categories)
     console.log('Dev code')
 
     try {
