@@ -22,7 +22,7 @@ export class Content {
     if (categories?.length) {
       let checkboxList = ''
       categories.forEach((category) => {
-        if (category.total) {
+        if (!category.total) {
           checkboxList += /* html */ `
           <li>
             <input type="checkbox" name="${category.name}" disabled category-id="${category.id}" />
@@ -59,7 +59,7 @@ export class Content {
       checkboxes.forEach((checkbox) => {
         checkbox.onchange = (e) => {
           if (e.currentTarget.name === 'checkall') {
-            checkboxes.forEach((cb) => (cb.checked = e.currentTarget.checked))
+            checkboxes.forEach((cb) => (cb.checked = e.currentTarget.checked && !cb.disabled))
           }
         }
 
@@ -140,7 +140,7 @@ export class Content {
     }
 
     this.renderCategorySelector(categories)
-    this.footerCtrl.showBackButton()
+    this.footerCtrl.showHomeButton()
   }
 
   renderCategorySelector(categories, serachKeyword) {
@@ -236,22 +236,32 @@ export class Content {
       (cb) => cb.name !== 'checkall' && cb.checked
     )
 
-    if (!checkedCheckBoxes?.length) {
-      location.hash = ''
-      alert('No categories selected')
-    } else {
-      const categories = checkedCheckBoxes.map((cb) => {
+    let categoryNames
+    let categories
+
+    if (checkedCheckBoxes?.length) {
+      categories = checkedCheckBoxes.map((cb) => {
         return {
           id: Number(cb.getAttribute('category-id')),
           name: cb.name,
         }
       })
-      localStorage.setItem('latest.categories', JSON.stringify(categories.map((c) => c.name)))
 
+      localStorage.setItem('latest.categories', JSON.stringify(categories))
+      categoryNames = categories.map((c) => c.name)
+    } else {
+      categories = JSON.parse(localStorage.getItem('latest.categories'))
+      categoryNames = categories.map((c) => c.name)
+    }
+
+    if (!categoryNames?.length) {
+      location.hash = ''
+      alert('No categories selected')
+    } else {
       this.clearContent()
-      this.footerCtrl.showTrainButtons()
+      this.footerCtrl.showTrainButtons(this.showTrain.bind(this))
 
-      const card = await CARD.getRandomCard(categories)
+      const card = await CARD.getRandomCard(categoryNames)
       const category = categories.find((c) => c.id === card.category)
 
       const cardInfo = /* html */ `

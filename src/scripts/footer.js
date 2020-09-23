@@ -8,7 +8,7 @@ export class Footer {
       {
         click: () => (location.hash = 'cards'),
       },
-      'Cards'
+      'New card'
     )
     const moveToTrainingButton = this.buttonFactory(
       {
@@ -24,46 +24,27 @@ export class Footer {
     this.footerElement.append(buttonContainer)
   }
 
-  showTrainButtons() {
-    const moveBackButton = this.buttonFactory(
-      {
-        click: () => history.back(),
-      },
-      'Back'
-    )
-
-    const checkKnownButton = this.buttonFactory(
-      {
-        click: () => console.log('Call known api'),
-      },
-      'Known'
-    )
-
-    const checkUnknownButton = this.buttonFactory(
-      {
-        click: () => console.log('Call unknown api'),
-      },
-      'Unknown'
-    )
+  showTrainButtons(handler) {
+    const goNextButtton = this.buttonFactory({ click: handler }, 'Next')
+    const moveHomeButton = this.buttonFactory({ click: () => (location.hash = '') }, 'Home')
 
     const buttonContainer = this.buttonContainerFactory()
-    buttonContainer.appendChild(checkKnownButton)
-    buttonContainer.appendChild(checkUnknownButton)
-    buttonContainer.appendChild(moveBackButton)
+    buttonContainer.appendChild(goNextButtton)
+    buttonContainer.appendChild(moveHomeButton)
     this.footerElement.innerHTML = ''
     this.footerElement.append(buttonContainer)
   }
 
-  showBackButton() {
-    const moveBackButton = this.buttonFactory(
+  showHomeButton() {
+    const moveHomeButton = this.buttonFactory(
       {
-        click: () => history.back(),
+        click: () => (location.hash = ''),
       },
-      'Back'
+      'Home'
     )
 
     const buttonContainer = this.buttonContainerFactory()
-    buttonContainer.appendChild(moveBackButton)
+    buttonContainer.appendChild(moveHomeButton)
     this.footerElement.innerHTML = ''
     this.footerElement.append(buttonContainer)
   }
