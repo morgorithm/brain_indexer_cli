@@ -21,13 +21,18 @@ export const CARD = {
   },
 
   getRandomCard: async (categories) => {
-    console.log('Dev code')
+    const categoriesName = categories.map((element) => element.name)
 
     try {
-      const res = await fetch('app/card/4')
+      const res = await fetch(
+        'app/random?' +
+          new URLSearchParams({
+            category: categoriesName,
+          })
+      )
 
       if (!res.ok) {
-        throw new Error('Faield to get random card')
+        throw new Error('Failed to get random card')
       } else {
         return await res.json()
       }
