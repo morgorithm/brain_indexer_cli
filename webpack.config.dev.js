@@ -2,7 +2,6 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  devtool: 'source-map',
   mode: 'development',
   entry: './src/scripts/app.js',
   output: {
@@ -35,4 +34,5 @@ module.exports = {
     compress: true,
     port: 4000,
   },
+  devtool: 'source-map',
 }
