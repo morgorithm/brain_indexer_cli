@@ -16,13 +16,11 @@ export const CARD = {
     }
   },
 
-  getRandomCard: async (categories) => {
-    const categoriesName = categories.map((element) => element.name)
-
+  getRandomCard: async (categoryNames) => {
     const res = await fetch(
       'app/random?' +
         new URLSearchParams({
-          category: categoriesName,
+          category: categoryNames,
         })
     )
 
