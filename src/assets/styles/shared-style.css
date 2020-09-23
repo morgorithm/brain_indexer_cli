@@ -67,13 +67,24 @@ div#content > div#card-management > form#category-search-form input {
 div#content > div#card-management > form#category-selector {
   display: grid;
   margin: 0px 12px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
 }
 div#content > div#card-management > form#category-selector > label {
   display: flex;
   font-size: smaller;
 }
 div#content > div#card-management > form#category-selector > label > * {
+  margin: auto 2px;
+}
+div#content > div#card-management > form#category-selector > label > button {
+  background-color: transparent;
+  border: none;
+  font-size: smaller;
+  margin: auto 2px auto auto;
+  padding: 0px;
+  outline: none;
+}
+div#content > div#card-management > form#category-selector > label > button.delete-btn {
   margin: auto 2px;
 }
 div#content > div#card-management > span#category-create-msg {

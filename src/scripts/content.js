@@ -22,13 +22,23 @@ export class Content {
     if (categories?.length) {
       let checkboxList = ''
       categories.forEach((category) => {
-        checkboxList += /* html */ `
+        if (category.total) {
+          checkboxList += /* html */ `
+          <li>
+            <input type="checkbox" name="${category.name}" disabled category-id="${category.id}" />
+            <span>${category.name}</span>
+            <span class="align-center">${category.total}</span>
+          </li>
+        `
+        } else {
+          checkboxList += /* html */ `
           <li>
             <input type="checkbox" name="${category.name}" category-id="${category.id}" />
             <span>${category.name}</span>
             <span class="align-center">${category.total}</span>
           </li>
         `
+        }
       })
 
       this.contentElement.innerHTML = /* html */ `
@@ -44,11 +54,8 @@ export class Content {
         </div>
       `
 
-      const lastestCategories =
-        JSON.parse(localStorage.getItem('latest.categories')) || []
-      const checkboxes = Array.from(
-        this.contentElement.querySelectorAll('input[type=checkbox]')
-      )
+      const lastestCategories = JSON.parse(localStorage.getItem('latest.categories')) || []
+      const checkboxes = Array.from(this.contentElement.querySelectorAll('input[type=checkbox]'))
       checkboxes.forEach((checkbox) => {
         checkbox.onchange = (e) => {
           if (e.currentTarget.name === 'checkall') {
@@ -127,11 +134,7 @@ export class Content {
       }
     }
     searchInput.onkeypress = (e) => {
-      if (
-        e.key === 'Enter' &&
-        e.currentTarget.value &&
-        this.categoryCreatable
-      ) {
+      if (e.key === 'Enter' && e.currentTarget.value && this.categoryCreatable) {
         this.saveCategory(e.currentTarget.value)
       }
     }
@@ -141,9 +144,7 @@ export class Content {
   }
 
   renderCategorySelector(categories, serachKeyword) {
-    const categorySelector = this.contentElement.querySelector(
-      'form#category-selector'
-    )
+    const categorySelector = this.contentElement.querySelector('form#category-selector')
     categorySelector.innerHTML = ''
 
     if (categories?.length) {
@@ -153,14 +154,69 @@ export class Content {
         categorySelector.innerHTML += /* html */ `
           <label>
             <input type="radio" name="category" value="${c.id}" />
-            <span>${c.name}</span>
+            <span category-id="${c.id}">${c.name}</span>
+            <button class="edit-btn" category-id="${c.id}">✍️</button>
+            <button class="delete-btn" category-name="${c.name}" category-id="${c.id}">⛔️</button>
           </label>
         `
       })
+      Array.from(categorySelector.querySelectorAll('button.delete-btn')).forEach(
+        (button) => (button.onclick = this.deleteCategory.bind(this))
+      )
+      Array.from(categorySelector.querySelectorAll('button.edit-btn')).forEach(
+        (button) => (button.onclick = this.editCategory.bind(this))
+      )
     } else {
       categorySelector.style.display = 'none'
       this.showCreateCategoryMsg(serachKeyword)
     }
+  }
+
+  async deleteCategory(e) {
+    e.preventDefault()
+    const button = e.currentTarget
+    const categoryName = button.getAttribute('category-name')
+    const categoryId = button.getAttribute('category-id')
+    const isConfirm = confirm(`Are you sure to delete '${categoryName}' category?`)
+    if (isConfirm) {
+      await CATEGORY.deleteCategory(categoryId)
+      this.showCards()
+    }
+  }
+
+  async editCategory(e) {
+    e.preventDefault()
+    const button = e.currentTarget
+    const listElement = button.parentElement
+
+    const span = listElement.querySelector('span')
+    const categoryId = span.getAttribute('category-id')
+    const categoryName = span.innerText
+
+    const input = document.createElement('input')
+    input.setAttribute('category-id', categoryId)
+    input.value = categoryName
+
+    while (listElement.childElementCount) {
+      listElement.removeChild(listElement.firstElementChild)
+    }
+
+    input.onkeypress = async (e) => {
+      if (e.key === 'Enter') {
+        if (input.value !== categoryName) {
+          await CATEGORY.updateCategory(categoryId, { name: input.value })
+        }
+        this.showCards()
+      }
+    }
+    input.onblur = async () => {
+      if (input.value !== categoryName) {
+        await CATEGORY.updateCategory(categoryId, { name: input.value })
+      }
+      this.showCards()
+    }
+    listElement.appendChild(input)
+    input.select()
   }
 
   showCreateCategoryMsg(serachKeyword) {
@@ -171,16 +227,14 @@ export class Content {
   }
 
   hideCreateCategoryMsg() {
-    this.contentElement.querySelector(
-      'span#category-create-msg'
-    ).style.display = 'none'
+    this.contentElement.querySelector('span#category-create-msg').style.display = 'none'
     this.categoryCreatable = false
   }
 
   async showTrain() {
-    const checkedCheckBoxes = Array.from(
-      this.contentElement.querySelectorAll('input[type=checkbox]')
-    ).filter((cb) => cb.name !== 'checkall' && cb.checked)
+    const checkedCheckBoxes = Array.from(this.contentElement.querySelectorAll('input[type=checkbox]')).filter(
+      (cb) => cb.name !== 'checkall' && cb.checked
+    )
 
     if (!checkedCheckBoxes?.length) {
       location.hash = ''
@@ -192,10 +246,7 @@ export class Content {
           name: cb.name,
         }
       })
-      localStorage.setItem(
-        'latest.categories',
-        JSON.stringify(categories.map((c) => c.name))
-      )
+      localStorage.setItem('latest.categories', JSON.stringify(categories.map((c) => c.name)))
 
       this.clearContent()
       this.footerCtrl.showTrainButtons()
@@ -217,9 +268,7 @@ export class Content {
       this.contentElement.innerHTML = cardInfo
 
       const cardInfoElement = this.contentElement.querySelector('div#card-info')
-      const cardDescElement = this.contentElement.querySelector(
-        'textarea#description'
-      )
+      const cardDescElement = this.contentElement.querySelector('textarea#description')
       cardInfoElement.onclick = () => (cardDescElement.value = card.description)
     }
   }
@@ -236,9 +285,7 @@ export class Content {
   async saveCard(e) {
     try {
       e.preventDefault()
-      const category = UTIL.serializeForm(
-        this.contentElement.querySelector('form#category-selector')
-      )
+      const category = UTIL.serializeForm(this.contentElement.querySelector('form#category-selector'))
       if (!category.category) throw new Error('No category selected')
       const card = UTIL.serializeForm(e.currentTarget)
       await CARD.createCard({
