@@ -2,11 +2,13 @@ import { CARD, CATEGORY } from './requests'
 import { ERRORS, ROUTES } from '../constants'
 
 import { Footer } from './footer'
+import { Header } from './header'
 import { UTIL } from './utils'
 
 export class Content {
   constructor() {
     this.contentElement = document.querySelector('div#content')
+    this.headerCtrl = new Header()
     this.footerCtrl = new Footer()
     window.onhashchange = this.routeChanged.bind(this)
   }
@@ -65,7 +67,7 @@ export class Content {
           }
         }
 
-        if (lastestCategories.indexOf(checkbox.name) >= 0) {
+        if (lastestCategories.findIndex((c) => c.name === checkbox.name) >= 0) {
           checkbox.checked = true
         }
       })
@@ -136,8 +138,9 @@ export class Content {
       }
     }
     searchInput.onkeypress = (e) => {
-      if (e.key === 'Enter' && e.currentTarget.value && this.categoryCreatable) {
-        this.saveCategory(e.currentTarget.value)
+      const newCategoryName = e.currentTarget.value
+      if (e.key === 'Enter' && newCategoryName && categories.findIndex((c) => c.name === newCategoryName) < 0) {
+        this.saveCategory(newCategoryName)
       }
     }
 
@@ -225,45 +228,21 @@ export class Content {
     const msg = this.contentElement.querySelector('span#category-create-msg')
     msg.innerHTML = /* html */ `Press 'Enter' to create <span class="keyword">'${serachKeyword}'</span>`
     msg.style.display = 'inline'
-    this.categoryCreatable = true
   }
 
   hideCreateCategoryMsg() {
     this.contentElement.querySelector('span#category-create-msg').style.display = 'none'
-    this.categoryCreatable = false
   }
 
-  async showTrain() {
-    const checkedCheckBoxes = Array.from(this.contentElement.querySelectorAll('input[type=checkbox]')).filter(
-      (cb) => cb.name !== 'checkall' && cb.checked
-    )
-
-    let categoryNames
-    let categories
-
-    if (checkedCheckBoxes?.length) {
-      categories = checkedCheckBoxes.map((cb) => {
-        return {
-          id: Number(cb.getAttribute('category-id')),
-          name: cb.name,
-        }
+  async showTrain(passedCategories) {
+    if (passedCategories) {
+      this.clearContent()
+      this.footerCtrl.showTrainButtons(() => {
+        this.showTrain(passedCategories)
       })
 
-      localStorage.setItem('latest.categories', JSON.stringify(categories))
-      categoryNames = categories.map((c) => c.name)
-    } else {
-      categories = JSON.parse(localStorage.getItem('latest.categories'))
-      categoryNames = categories.map((c) => c.name)
-    }
-
-    if (!categoryNames?.length) {
-      location.hash = ''
-      alert('No categories selected')
-    } else {
-      this.clearContent()
-      this.footerCtrl.showTrainButtons(this.showTrain.bind(this))
-
-      const card = await CARD.getRandomCard(categoryNames)
+      const card = await CARD.getRandomCard(passedCategories)
+      const categories = JSON.parse(localStorage.getItem('latest.categories'))
       const category = categories.find((c) => c.id === card.category)
 
       const cardInfo = /* html */ `
@@ -282,6 +261,29 @@ export class Content {
       const cardInfoElement = this.contentElement.querySelector('div#card-info')
       const cardDescElement = this.contentElement.querySelector('textarea#description')
       cardInfoElement.onclick = () => (cardDescElement.value = card.description)
+    } else {
+      const checkedCheckBoxes = Array.from(this.contentElement.querySelectorAll('input[type=checkbox]')).filter(
+        (cb) => cb.name !== 'checkall' && cb.checked
+      )
+
+      let categoryNames
+      let categories
+
+      if (checkedCheckBoxes?.length) {
+        categories = checkedCheckBoxes.map((cb) => {
+          return {
+            id: Number(cb.getAttribute('category-id')),
+            name: cb.name,
+          }
+        })
+
+        localStorage.setItem('latest.categories', JSON.stringify(categories))
+        categoryNames = categories.map((c) => c.name)
+        this.showTrain(categoryNames)
+      } else {
+        alert('No categories selected')
+        location.hash = ''
+      }
     }
   }
 
@@ -331,14 +333,17 @@ export class Content {
 
     switch (route) {
       case ROUTES.MAIN.route:
+        this.headerCtrl.setTitle(ROUTES.MAIN.title)
         this.showMain()
         break
 
       case ROUTES.CARDS.route:
+        this.headerCtrl.setTitle(ROUTES.CARDS.title)
         this.showCards()
         break
 
       case ROUTES.TRAIN.route:
+        this.headerCtrl.setTitle(ROUTES.TRAIN.title)
         this.showTrain()
         break
 
