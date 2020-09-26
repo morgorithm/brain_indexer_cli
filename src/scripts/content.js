@@ -16,6 +16,8 @@ export class Content {
   }
 
   async showMain() {
+    await UTIL.isDjangoLoggedIn()
+
     this.clearContent()
     const categories = await CATEGORY.getCategories()
 
