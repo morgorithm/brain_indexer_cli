@@ -8,13 +8,21 @@ body {
 div#header {
   text-align: center;
 }
-
+div#header > div#navigator {
+  display: flex;
+}
+div#header > div#navigator > button {
+  margin-left: auto;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
 div#content {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-
 div#footer > div#button-container {
   margin: 5px;
   display: flex;
