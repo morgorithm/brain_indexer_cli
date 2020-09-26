@@ -24,4 +24,15 @@ export const UTIL = {
 
     return csrfToken
   },
+  isDjangoLoggedIn: async () => {
+    const res = await fetch('app/checkLogin')
+
+    if (!res.ok) {
+      alert(res.statusText)
+    } else {
+      if (res.redirected) {
+        window.location.href = await res.url
+      }
+    }
+  },
 }
